@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section id="auth-screen" class="auth-screen">
+      <div class="auth-card">
+        <div class="brand-mark">₹</div><p class="eyebrow">PERSONAL FINANCE, SIMPLIFIED</p>
+        <h1>Rupee Expense Tracker</h1><p class="auth-subtitle">Track every rupee. Build better habits.</p>
+        <div class="auth-tabs"><button id="login-tab" class="auth-tab active" type="button">Log in</button><button id="signup-tab" class="auth-tab" type="button">Create account</button></div>
+        <form id="auth-form">
+          <div id="name-field" class="form-group" hidden><label for="auth-name">Full name</label><input id="auth-name" type="text" autocomplete="name" placeholder="Your name"></div>
+          <div class="form-group"><label for="auth-email">Email address</label><input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+          <div class="form-group"><label for="auth-password">Password</label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required></div>
+          <button class="submit-btn" id="auth-submit" type="submit">Log in</button><p id="auth-error" role="alert"></p>
+        </form><small class="auth-note">Your expense records are saved in your MongoDB database.</small>
+      </div>
+    </section>
+    <div class="container" id="app-container" hidden>
+        <header>
+            <h1>Rupee Expense Tracker</h1><div class="header-user"><span id="welcome-user">Welcome</span><button id="logout-btn" type="button" class="secondary-btn">Log out</button></div>
+        </header>
+
+        <main>
+            <section class="summary-dashboard" aria-label="Expense summary dashboard">
+                <div class="summary-heading">
+                    <div><p class="eyebrow">FINANCIAL OVERVIEW</p><h2>Spending at a glance</h2></div>
+                    <span class="live-pill"><span></span> Live insights</span>
+                </div>
+                <div class="summary-grid">
+                    <article class="summary-card summary-card-primary">
+                        <div class="summary-card-top"><span class="summary-icon">₹</span><span class="summary-trend">ALL TIME</span></div>
+                        <p>Total Expenses</p><strong id="summary-total">₹0.00</strong><small>Across all saved records</small>
+                    </article>
+                    <article class="summary-card">
+                        <div class="summary-card-top"><span class="summary-icon">↗</span><span class="summary-trend">THIS MONTH</span></div>
+                        <p>This Month</p><strong id="summary-month">₹0.00</strong><small id="summary-month-label">Current month spending</small>
+                    </article>
+                    <article class="summary-card">
+                        <div class="summary-card-top"><span class="summary-icon">▤</span><span class="summary-trend">ACTIVITY</span></div>
+                        <p>Transactions</p><strong id="summary-count">0</strong><small>Total recorded expenses</small>
+                    </article>
+                    <article class="summary-card">
+                        <div class="summary-card-top"><span class="summary-icon">◷</span><span class="summary-trend">DAILY AVG.</span></div>
+                        <p>Daily Average</p><strong id="summary-average">₹0.00</strong><small>Current month so far</small>
+                    </article>
+                </div>
+            </section>
+
+            <form id="add-expense-form">
+                <h2 id="expense-form-title">Add New Expense</h2>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" placeholder="e.g., Coffee, Groceries" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" placeholder="0.00" min="0.01" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input type="text" id="category" placeholder="e.g., Food, Transport" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group date-field"><label for="expense-date">Expense Date</label><input type="date" id="expense-date" required></div>
+                    <div class="form-group">
+                    <label for="payment-mode">Payment Mode</label>
+                    <select id="payment-mode" class="filter-select" required>
+                        <option value="Cash">Cash</option>
+                        <option value="UPI" selected>UPI</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Net Banking">Net Banking</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    </div>
+                </div>
+                <div class="form-row form-actions"><button type="submit" class="submit-btn" id="expense-submit">Add Expense</button><button type="button" id="cancel-edit" class="secondary-btn" hidden>Cancel edit</button></div>
+            </form>
+
+            <section>
+                <h2>Your Expenses</h2>
+
+                <div class="history-filters">
+                  <div class="form-group"><label for="year-filter">Year</label><select id="year-filter" class="filter-select"><option value="all">All years</option></select></div>
+                  <div class="form-group"><label for="month-filter">Month</label><select id="month-filter" class="filter-select"><option value="all">All months</option></select></div>
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="category-filter">Filter by Category</label>
+                    <select id="category-filter" class="filter-select">
+                        <option value="all">All Categories</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="total-display">
+                    <span>Total Spends:</span>
+                    <span id="total-expenses">₹0.00</span>
+                </div>
+                <div id="expense-list-container">
+                    <div id="expense-list">
+                        <p id="loading-message" class="list-message">Loading expenses...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="analytics-section">
+                <h2>Spending Analytics</h2>
+                <p class="analytics-note">Graphs update automatically using your saved expenses.</p>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Category-wise Spending</h3>
+                        <div class="donut-layout">
+                            <div class="donut-wrap">
+                                <canvas id="category-chart" aria-label="Category-wise spending donut chart"></canvas>
+                                <div class="donut-center"><span>Total Spends</span><strong id="category-chart-total">₹0</strong></div>
+                            </div>
+                            <div id="category-legend" class="chart-legend" aria-label="Category spending legend"></div>
+                        </div>
+                        <p id="category-chart-empty" class="chart-empty">Add expenses to see this graph.</p>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Payment Mode-wise Spending</h3>
+                        <canvas id="payment-chart" aria-label="Payment mode-wise spending bar chart"></canvas>
+                        <p id="payment-chart-empty" class="chart-empty">Add expenses to see this graph.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="message-modal">
+        <span id="message-text"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
